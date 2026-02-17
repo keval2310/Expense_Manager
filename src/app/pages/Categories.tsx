@@ -13,7 +13,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Categories: React.FC = () => {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +134,7 @@ export const Categories: React.FC = () => {
 
         <TabsContent value="categories" className="mt-6">
           <div className="mb-4">
+            {user?.role === 'admin' && (
             <Dialog open={catDialogOpen} onOpenChange={(open) => { setCatDialogOpen(open); if (!open) resetCatForm(); }}>
               <DialogTrigger asChild>
                 <Button><Plus className="w-4 h-4 mr-2" />Add Category</Button>
@@ -165,6 +166,7 @@ export const Categories: React.FC = () => {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,12 +176,16 @@ export const Categories: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{cat.name}</CardTitle>
                     <div className="flex gap-2">
+                      {user?.role === 'admin' && (
+                        <>
                       <Button variant="ghost" size="sm" onClick={() => { setEditingCat(cat); setCatForm({ name: cat.name, type: cat.type, isActive: cat.isActive }); setCatDialogOpen(true); }}>
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => deleteCat(cat.id)}>
                         <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
@@ -200,6 +206,7 @@ export const Categories: React.FC = () => {
 
         <TabsContent value="subcategories" className="mt-6">
           <div className="mb-4">
+            {user?.role === 'admin' && (
             <Dialog open={subDialogOpen} onOpenChange={(open) => { setSubDialogOpen(open); if (!open) resetSubForm(); }}>
               <DialogTrigger asChild>
                 <Button><Plus className="w-4 h-4 mr-2" />Add Subcategory</Button>
@@ -230,6 +237,7 @@ export const Categories: React.FC = () => {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -239,12 +247,16 @@ export const Categories: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">{sub.name}</CardTitle>
                     <div className="flex gap-2">
+                      {user?.role === 'admin' && (
+                        <>
                       <Button variant="ghost" size="sm" onClick={() => { setEditingSub(sub); setSubForm({ name: sub.name, categoryId: sub.categoryId, isActive: sub.isActive }); setSubDialogOpen(true); }}>
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => deleteSub(sub.id)}>
                         <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardHeader>

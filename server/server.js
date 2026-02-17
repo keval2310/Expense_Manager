@@ -196,8 +196,9 @@ app.get("/api/categories", authenticateToken, async (req, res) => {
   }
 });
 
-// Create Category
+// Create Category (Admin Only)
 app.post("/api/categories", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { name, type } = req.body;
   try {
     const [result] = await pool.query(
@@ -212,6 +213,7 @@ app.post("/api/categories", authenticateToken, async (req, res) => {
 });
 
 app.put("/api/categories/:id", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { id } = req.params;
   const { name, type } = req.body;
   try {
@@ -228,6 +230,7 @@ app.put("/api/categories/:id", authenticateToken, async (req, res) => {
 });
 
 app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { id } = req.params;
   try {
     await pool.query("DELETE FROM categories WHERE id=?", [id]);
@@ -255,6 +258,7 @@ app.get("/api/subcategories", authenticateToken, async (req, res) => {
 });
 
 app.post("/api/subcategories", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { name, categoryId } = req.body;
   try {
     const [result] = await pool.query(
@@ -269,6 +273,7 @@ app.post("/api/subcategories", authenticateToken, async (req, res) => {
 });
 
 app.put("/api/subcategories/:id", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { id } = req.params;
   const { name, categoryId } = req.body;
   try {
@@ -284,6 +289,7 @@ app.put("/api/subcategories/:id", authenticateToken, async (req, res) => {
 });
 
 app.delete("/api/subcategories/:id", authenticateToken, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(403);
   const { id } = req.params;
   try {
     await pool.query("DELETE FROM subcategories WHERE id=?", [id]);
@@ -300,20 +306,25 @@ app.get("/api/projects", authenticateToken, async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    let query = "SELECT * FROM projects WHERE 1=1";
+    let query = `
+      SELECT p.*, u.name as user_name
+      FROM projects p
+      JOIN users u ON p.UserID = u.id
+      WHERE 1=1
+    `;
     const params = [];
 
     if (req.user.role !== "admin") {
-      query += " AND UserID = ?";
+      query += " AND p.UserID = ?";
       params.push(req.user.id);
     }
 
     if (search) {
-      query += " AND (ProjectName LIKE ? OR Description LIKE ?)";
+      query += " AND (p.ProjectName LIKE ? OR p.Description LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += " ORDER BY ProjectStartDate DESC LIMIT ? OFFSET ?";
+    query += " ORDER BY p.ProjectStartDate DESC LIMIT ? OFFSET ?";
     params.push(parseInt(limit), parseInt(offset));
 
     const [rows] = await pool.query(query, params);
@@ -405,19 +416,20 @@ app.get("/api/expenses", authenticateToken, async (req, res) => {
 
   try {
     let query = `
-            SELECT e.*, c.name as category_name, p.ProjectName as project_name 
+            SELECT e.*, c.name as category_name, p.ProjectName as project_name, u.name as user_name
             FROM expenses e 
             LEFT JOIN categories c ON e.category_id = c.id 
             LEFT JOIN projects p ON e.project_id = p.ProjectID
+            JOIN users u ON e.user_id = u.id
             WHERE 1=1
         `;
     const params = [];
 
-    // Add user filter if desired
-    // if (req.user.role !== 'admin') {
-    //    query += ' AND e.user_id = ?';
-    //    params.push(req.user.id);
-    // }
+    // Add user filter
+    if (req.user.role !== 'admin') {
+      query += ' AND e.user_id = ?';
+      params.push(req.user.id);
+    }
 
     if (search) {
       query += " AND (e.remarks LIKE ? OR c.name LIKE ?)";
@@ -437,12 +449,20 @@ app.get("/api/expenses", authenticateToken, async (req, res) => {
       categoryId: r.category_id,
       subcategoryId: r.subcategory_id,
       projectId: r.project_id,
+      userName: r.user_name,
+      userId: r.user_id
     }));
 
     // Get count
     let countQuery =
       "SELECT COUNT(*) as total FROM expenses e LEFT JOIN categories c ON e.category_id = c.id WHERE 1=1";
     const countParams = [];
+
+    if (req.user.role !== 'admin') {
+      countQuery += ' AND e.user_id = ?';
+      countParams.push(req.user.id);
+    }
+
     if (search) {
       countQuery += " AND (e.remarks LIKE ? OR c.name LIKE ?)";
       countParams.push(`%${search}%`, `%${search}%`);
@@ -484,6 +504,14 @@ app.put("/api/expenses/:id", authenticateToken, async (req, res) => {
   const { date, amount, remarks, categoryId, subcategoryId, projectId } =
     req.body;
   try {
+    // Check ownership
+    const [existing] = await pool.query("SELECT user_id FROM expenses WHERE id=?", [id]);
+    if (existing.length === 0) return res.status(404).json({ error: "Expense not found" });
+
+    if (req.user.role !== "admin" && existing[0].user_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     await pool.query(
       "UPDATE expenses SET date=?, amount=?, remarks=?, category_id=?, subcategory_id=?, project_id=? WHERE id=?",
       [
@@ -506,6 +534,14 @@ app.put("/api/expenses/:id", authenticateToken, async (req, res) => {
 app.delete("/api/expenses/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   try {
+    // Check ownership
+    const [existing] = await pool.query("SELECT user_id FROM expenses WHERE id=?", [id]);
+    if (existing.length === 0) return res.status(404).json({ error: "Expense not found" });
+
+    if (req.user.role !== "admin" && existing[0].user_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     await pool.query("DELETE FROM expenses WHERE id=?", [id]);
     res.json({ success: true });
   } catch (err) {
@@ -520,10 +556,23 @@ app.get("/api/incomes", authenticateToken, async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM incomes ORDER BY date DESC LIMIT ? OFFSET ?",
-      [parseInt(limit), parseInt(offset)],
-    );
+    let query = `
+      SELECT i.*, u.name as user_name
+      FROM incomes i
+      JOIN users u ON i.user_id = u.id
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (req.user.role !== 'admin') {
+      query += " AND i.user_id = ?";
+      params.push(req.user.id);
+    }
+
+    query += " ORDER BY i.date DESC LIMIT ? OFFSET ?";
+    params.push(parseInt(limit), parseInt(offset));
+
+    const [rows] = await pool.query(query, params);
     const formatted = rows.map((r) => ({
       id: r.id,
       date: r.date,
@@ -532,11 +581,19 @@ app.get("/api/incomes", authenticateToken, async (req, res) => {
       categoryId: r.category_id,
       subcategoryId: r.subcategory_id,
       projectId: r.project_id,
+      userName: r.user_name,
+      userId: r.user_id
     }));
 
-    const [countResult] = await pool.query(
-      "SELECT COUNT(*) as total FROM incomes",
-    );
+    let countQuery = "SELECT COUNT(*) as total FROM incomes WHERE 1=1";
+    const countParams = [];
+
+    if (req.user.role !== 'admin') {
+      countQuery += " AND user_id = ?";
+      countParams.push(req.user.id);
+    }
+
+    const [countResult] = await pool.query(countQuery, countParams);
 
     res.json({ incomes: formatted, total: countResult[0].total, page, limit });
   } catch (err) {
@@ -573,6 +630,14 @@ app.put("/api/incomes/:id", authenticateToken, async (req, res) => {
   const { date, amount, remarks, categoryId, subcategoryId, projectId } =
     req.body;
   try {
+    // Check ownership
+    const [existing] = await pool.query("SELECT user_id FROM incomes WHERE id=?", [id]);
+    if (existing.length === 0) return res.status(404).json({ error: "Income not found" });
+
+    if (req.user.role !== "admin" && existing[0].user_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     await pool.query(
       "UPDATE incomes SET date=?, amount=?, remarks=?, category_id=?, subcategory_id=?, project_id=? WHERE id=?",
       [
@@ -595,6 +660,14 @@ app.put("/api/incomes/:id", authenticateToken, async (req, res) => {
 app.delete("/api/incomes/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   try {
+    // Check ownership
+    const [existing] = await pool.query("SELECT user_id FROM incomes WHERE id=?", [id]);
+    if (existing.length === 0) return res.status(404).json({ error: "Income not found" });
+
+    if (req.user.role !== "admin" && existing[0].user_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
     await pool.query("DELETE FROM incomes WHERE id=?", [id]);
     res.json({ success: true });
   } catch (err) {
@@ -623,8 +696,18 @@ app.get("/api/users", authenticateToken, async (req, res) => {
 // Dashboard Stats
 app.get("/api/dashboard-stats", authenticateToken, async (req, res) => {
   try {
-    const [expenseRows] = await pool.query("SELECT amount, date FROM expenses");
-    const [incomeRows] = await pool.query("SELECT amount, date FROM incomes");
+    let expenseQuery = "SELECT amount, date FROM expenses WHERE 1=1";
+    let incomeQuery = "SELECT amount, date FROM incomes WHERE 1=1";
+    const params = [];
+
+    if (req.user.role !== 'admin') {
+      expenseQuery += " AND user_id = ?";
+      incomeQuery += " AND user_id = ?";
+      params.push(req.user.id);
+    }
+
+    const [expenseRows] = await pool.query(expenseQuery, params);
+    const [incomeRows] = await pool.query(incomeQuery, params);
 
     const totalExpenses = expenseRows.reduce(
       (sum, item) => sum + Number(item.amount),
@@ -662,12 +745,22 @@ app.get("/api/category-breakdown", authenticateToken, async (req, res) => {
   const { type } = req.query; // 'expense' or 'income'
   const table = type === "income" ? "incomes" : "expenses";
   try {
-    const [rows] = await pool.query(`
+    let query = `
             SELECT c.name as categoryName, SUM(t.amount) as total
             FROM ${table} t
             JOIN categories c ON t.category_id = c.id
-            GROUP BY c.name
-        `);
+            WHERE 1=1
+    `;
+    const params = [];
+
+    if (req.user.role !== 'admin') {
+      query += " AND t.user_id = ?";
+      params.push(req.user.id);
+    }
+
+    query += " GROUP BY c.name";
+
+    const [rows] = await pool.query(query, params);
     res.json({ breakdown: rows });
   } catch (err) {
     console.error("Error fetching category breakdown:", err);
@@ -678,21 +771,29 @@ app.get("/api/category-breakdown", authenticateToken, async (req, res) => {
 // Monthly Trends
 app.get("/api/monthly-trends", authenticateToken, async (req, res) => {
   try {
-    const [expenseRows] = await pool.query(`
+    let expenseQuery = `
             SELECT DATE_FORMAT(date, '%b') as month, SUM(amount) as total
             FROM expenses
             WHERE date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-            GROUP BY DATE_FORMAT(date, '%b'), YEAR(date), MONTH(date)
-            ORDER BY YEAR(date), MONTH(date)
-        `);
-
-    const [incomeRows] = await pool.query(`
+    `;
+    let incomeQuery = `
             SELECT DATE_FORMAT(date, '%b') as month, SUM(amount) as total
             FROM incomes
             WHERE date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-            GROUP BY DATE_FORMAT(date, '%b'), YEAR(date), MONTH(date)
-            ORDER BY YEAR(date), MONTH(date)
-        `);
+    `;
+    const params = [];
+
+    if (req.user.role !== 'admin') {
+      expenseQuery += " AND user_id = ?";
+      incomeQuery += " AND user_id = ?";
+      params.push(req.user.id);
+    }
+
+    expenseQuery += " GROUP BY DATE_FORMAT(date, '%b'), YEAR(date), MONTH(date) ORDER BY YEAR(date), MONTH(date)";
+    incomeQuery += " GROUP BY DATE_FORMAT(date, '%b'), YEAR(date), MONTH(date) ORDER BY YEAR(date), MONTH(date)";
+
+    const [expenseRows] = await pool.query(expenseQuery, params);
+    const [incomeRows] = await pool.query(incomeQuery, params);
 
     // Generate last 6 months list to ensure continuity
     const trends = [];
@@ -721,12 +822,22 @@ app.get("/api/monthly-trends", authenticateToken, async (req, res) => {
 // Project Breakdown
 app.get("/api/project-breakdown", authenticateToken, async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    let query = `
             SELECT p.ProjectName as name, SUM(e.amount) as total
             FROM expenses e
             JOIN projects p ON e.project_id = p.ProjectID
-            GROUP BY p.ProjectName
-        `);
+            WHERE 1=1
+    `;
+    const params = [];
+
+    if (req.user.role !== 'admin') {
+      query += " AND e.user_id = ?";
+      params.push(req.user.id);
+    }
+
+    query += " GROUP BY p.ProjectName";
+
+    const [rows] = await pool.query(query, params);
     res.json({ breakdown: rows });
   } catch (err) {
     console.error("Error fetching project breakdown:", err);

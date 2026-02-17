@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import { formatCurrency } from '../../lib/utils';
 
 export const Incomes: React.FC = () => {
-  const { session } = useAuth();
+  const { session, isAdmin } = useAuth();
   const [incomes, setIncomes] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
@@ -217,6 +217,7 @@ export const Incomes: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
+                    {isAdmin && <TableHead>User</TableHead>}
                     <TableHead>Category</TableHead>
                     <TableHead>Subcategory</TableHead>
                     <TableHead>Amount</TableHead>
@@ -228,6 +229,7 @@ export const Incomes: React.FC = () => {
                   {incomes.map((income) => (
                     <TableRow key={income.id}>
                       <TableCell>{format(new Date(income.date), 'MMM dd, yyyy')}</TableCell>
+                      {isAdmin && <TableCell>{income.userName || '-'}</TableCell>}
                       <TableCell>{getCategoryName(income.categoryId)}</TableCell>
                       <TableCell>{income.subcategoryId ? getSubcategoryName(income.subcategoryId) : '-'}</TableCell>
                       <TableCell className="font-semibold text-green-600">{formatCurrency(income.amount)}</TableCell>

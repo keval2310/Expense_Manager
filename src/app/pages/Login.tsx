@@ -22,7 +22,7 @@ export const Login: React.FC = () => {
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpName, setSignUpName] = useState('');
-  const [signUpRole, setSignUpRole] = useState('user');
+
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +41,7 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(signUpEmail, signUpPassword, signUpName, signUpRole);
+      await signUp(signUpEmail, signUpPassword, signUpName);
       // Switch to sign in tab after successful signup
       setSignInEmail(signUpEmail);
     } catch (error) {
@@ -138,18 +138,7 @@ export const Login: React.FC = () => {
                     minLength={6}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-role">Role</Label>
-                  <Select value={signUpRole} onValueChange={setSignUpRole}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Normal User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Creating account...' : 'Sign Up'}
                 </Button>

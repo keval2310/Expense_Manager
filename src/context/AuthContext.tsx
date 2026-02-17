@@ -14,7 +14,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string, role: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   token: string | null;
 }
@@ -69,9 +69,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, role: string) => {
+  const signUp = async (email: string, password: string, name: string) => {
     try {
-      const response = await api.register({ email, password, name, role });
+      const response = await api.register({ email, password, name, role: 'user' });
       if (response.success && response.token && response.user) {
         // Automatically login after register
         localStorage.setItem('accessToken', response.token);

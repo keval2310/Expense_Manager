@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export const Projects: React.FC = () => {
-  const { session } = useAuth();
+  const { session, isAdmin } = useAuth();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -289,6 +289,7 @@ export const Projects: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Logo</TableHead>
+                    {isAdmin && <TableHead>User</TableHead>}
                     <TableHead>Project Name</TableHead>
                     <TableHead>Detail</TableHead>
                     <TableHead>Start Date</TableHead>
@@ -307,6 +308,7 @@ export const Projects: React.FC = () => {
                           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">NA</div>
                         )}
                       </TableCell>
+                      {isAdmin && <TableCell>{project.user_name || '-'}</TableCell>}
                       <TableCell className="font-medium">{project.ProjectName}</TableCell>
                       <TableCell className="max-w-xs truncate">{project.ProjectDetail}</TableCell>
                       <TableCell>
