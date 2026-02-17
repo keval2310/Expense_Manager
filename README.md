@@ -184,16 +184,17 @@ A comprehensive full-stack expense and income management system with role-based 
 ## User Roles
 
 ### Admin
-- Full access to all features
-- Can view all users' expenses and incomes
-- Can manage other users
-- Can access user management page
+- **Full System Access**: Can view and manage all data.
+- **Global Visibility**: Can view expenses, incomes, and projects for **all users**.
+- **User Identification**: Admin views include a "User" column to identify the creator of each record.
+- **Category Management**: Exclusive rights to create, edit, and delete Categories and Subcategories.
+- **User Management**: Can access the user management page to view all registered users.
 
 ### Normal User
-- Can only view/manage their own expenses and incomes
-- Can create categories, subcategories, and projects
-- Can generate reports for their own data
-- Cannot access user management
+- **Data Isolation**: Can strictly only view and manage their **own** expenses, incomes, and projects.
+- **Restricted Access**: Cannot see data from other users or the admin.
+- **Read-Only Categories**: Can use categories for transactions but cannot modify them.
+- **Self-Service**: Can generate reports and analytics for their own personal data.
 
 ## Getting Started
 
@@ -219,11 +220,16 @@ A comprehensive full-stack expense and income management system with role-based 
    - Start React app: `npm run dev`
 
 4. **Create Admin Account**
-   - Open browser and go to `http://localhost:5173`
-   - Click "Sign Up" tab
-   - Enter your details
-   - Select "Admin" role
-   - Click "Sign Up"
+   - By default, all new signups are assigned the **User** role.
+   - To create the initial **Admin** account, run the provided script:
+     ```bash
+     cd server
+     node create_admin.js
+     ```
+   - **Default Admin Credentials**:
+     - Email: `keval123@abc.com`
+     - Password: `keval2310`
+   - Log in with these credentials at `http://localhost:5173`.
 
 5. **Set Up Categories**
    - Navigate to "Categories & Subcategories"
@@ -343,8 +349,8 @@ A comprehensive full-stack expense and income management system with role-based 
 - Try different browser if issue persists
 
 **Admin features not showing**
-- Verify you signed up with Admin role
-- Sign out and sign back in
+- Verify you are logged in with the dedicated admin account (`keval123@abc.com`).
+- Regular users cannot access admin features by design.
 
 ## Technical Notes
 
