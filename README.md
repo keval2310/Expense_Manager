@@ -5,7 +5,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Features
 
 ### Authentication & Authorization
-- ✅ User signup and signin with Supabase Auth
+- ✅ User signup and signin
 - ✅ Role-based access (Admin / Normal User)
 - ✅ JWT-based authentication
 - ✅ Protected routes
@@ -44,12 +44,10 @@ A comprehensive full-stack expense and income management system with role-based 
 - **Sonner** - Toast notifications
 
 ### Backend
-- **Supabase** - Backend-as-a-Service
-  - PostgreSQL database (via KV store)
-  - Authentication & Authorization
-  - Edge Functions (Hono server)
-- **Hono** - Web framework for Edge Functions
+- **Node.js & Express** - Server environment
+- **MySQL** - Database
 - **JWT** - Token-based authentication
+- **Multer** - File handling
 
 ## Architecture
 
@@ -73,38 +71,45 @@ A comprehensive full-stack expense and income management system with role-based 
 │  ┌──────────────────────────────────────┐  │
 │  │  Services:                            │  │
 │  │  - API service (REST calls)           │  │
-│  │  - Supabase client                    │  │
 │  └──────────────────────────────────────┘  │
 └─────────────────────────────────────────────┘
                      ↓ HTTPS
 ┌─────────────────────────────────────────────┐
-│      Supabase Edge Function (Hono)          │
+│             Node.js / Express Server         │
 │  ┌──────────────────────────────────────┐  │
 │  │  Routes:                              │  │
-│  │  - /auth/signup                       │  │
-│  │  - /users (me, list, update)          │  │
-│  │  - /categories (CRUD)                 │  │
-│  │  - /subcategories (CRUD)              │  │
-│  │  - /projects (CRUD)                   │  │
-│  │  - /expenses (CRUD)                   │  │
-│  │  - /incomes (CRUD)                    │  │
-│  │  - /analytics (dashboard, trends,     │  │
-│  │    category breakdown, projects)      │  │
+│  │  - /api/auth/register                 │  │
+│  │  - /api/auth/login                    │  │
+│  │  - /api/users                         │  │
+│  │  - /api/categories                    │  │
+│  │  - /api/subcategories                 │  │
+│  │  - /api/projects                      │  │
+│  │  - /api/expenses                      │  │
+│  │  - /api/incomes                       │  │
+│  │  - /api/dashboard-stats               │  │
+│  │  - /api/monthly-trends                │  │
+│  │  - /api/category-breakdown            │  │
+│  │  - /api/project-breakdown             │  │
 │  └──────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────┐  │
 │  │  Middleware:                          │  │
 │  │  - CORS                               │  │
-│  │  - Logger                             │  │
+│  │  - Express JSON Parser                │  │
 │  │  - Auth (JWT verification)            │  │
+│  │  - Multer (File Uploads)              │  │
 │  └──────────────────────────────────────┘  │
 └─────────────────────────────────────────────┘
                      ↓
 ┌─────────────────────────────────────────────┐
-│           Supabase Services                  │
+│                 MySQL Database               │
 │  ┌──────────────────────────────────────┐  │
-│  │  - Auth (user management)             │  │
-│  │  - KV Store (PostgreSQL)              │  │
-│  │  - Edge Functions                     │  │
+│  │  Tables:                              │  │
+│  │  - users                              │  │
+│  │  - categories                         │  │
+│  │  - subcategories                      │  │
+│  │  - projects                           │  │
+│  │  - expenses                           │  │
+│  │  - incomes                            │  │
 │  └──────────────────────────────────────┘  │
 └─────────────────────────────────────────────┘
 ```
@@ -132,48 +137,49 @@ A comprehensive full-stack expense and income management system with role-based 
 ## API Endpoints
 
 ### Authentication
-- `POST /auth/signup` - Create new user account
+- `POST /api/auth/register` - Create new user account
 
 ### Users
-- `GET /users/me` - Get current user profile
-- `GET /users` - List all users (admin only)
-- `PUT /users/:id` - Update user (admin only)
+- `GET /api/auth/me` - Get current user profile
+- `GET /api/users` - List all users (admin only)
+- `PUT /api/users/profile` - Update user profile
+- `PUT /api/users/password` - Update user password
 
 ### Categories
-- `GET /categories` - List all categories
-- `POST /categories` - Create category
-- `PUT /categories/:id` - Update category
-- `DELETE /categories/:id` - Delete category
+- `GET /api/categories` - List all categories
+- `POST /api/categories` - Create category
+- `PUT /api/categories/:id` - Update category
+- `DELETE /api/categories/:id` - Delete category
 
 ### Subcategories
-- `GET /subcategories` - List all subcategories
-- `POST /subcategories` - Create subcategory
-- `PUT /subcategories/:id` - Update subcategory
-- `DELETE /subcategories/:id` - Delete subcategory
+- `GET /api/subcategories` - List all subcategories
+- `POST /api/subcategories` - Create subcategory
+- `PUT /api/subcategories/:id` - Update subcategory
+- `DELETE /api/subcategories/:id` - Delete subcategory
 
 ### Projects
-- `GET /projects` - List all projects
-- `POST /projects` - Create project
-- `PUT /projects/:id` - Update project
-- `DELETE /projects/:id` - Delete project
+- `GET /api/projects` - List all projects
+- `POST /api/projects` - Create project
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
 
 ### Expenses
-- `GET /expenses` - List expenses (filtered by user role)
-- `POST /expenses` - Create expense
-- `PUT /expenses/:id` - Update expense
-- `DELETE /expenses/:id` - Delete expense
+- `GET /api/expenses` - List expenses (filtered by user role)
+- `POST /api/expenses` - Create expense
+- `PUT /api/expenses/:id` - Update expense
+- `DELETE /api/expenses/:id` - Delete expense
 
 ### Incomes
-- `GET /incomes` - List incomes (filtered by user role)
-- `POST /incomes` - Create income
-- `PUT /incomes/:id` - Update income
-- `DELETE /incomes/:id` - Delete income
+- `GET /api/incomes` - List incomes (filtered by user role)
+- `POST /api/incomes` - Create income
+- `PUT /api/incomes/:id` - Update income
+- `DELETE /api/incomes/:id` - Delete income
 
 ### Analytics
-- `GET /analytics/dashboard` - Get dashboard stats
-- `GET /analytics/category-breakdown?type=expense|income` - Category-wise breakdown
-- `GET /analytics/monthly-trends?months=12` - Monthly trends
-- `GET /analytics/project-breakdown` - Project-wise summary
+- `GET /api/dashboard-stats` - Get dashboard stats
+- `GET /api/category-breakdown?type=expense|income` - Category-wise breakdown
+- `GET /api/monthly-trends` - Monthly trends
+- `GET /api/project-breakdown` - Project-wise summary
 
 ## User Roles
 
@@ -192,23 +198,34 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Getting Started
 
 ### Prerequisites
-- Account created in Figma Make
-- Supabase project (automatically configured)
+- Node.js and npm installed
+- MySQL Server installed and running
 
 ### First Time Setup
 
-1. **Create Admin Account**
+1. **Database Setup**
+   - Create a MySQL database named `expense_manager`.
+   - Run the provided SQL script to create tables.
+   - Configure `.env` with your DB credentials.
+
+2. **Backend Setup**
+   - Navigate to `server/` directory `cd server`
+   - Install dependencies: `npm install`
+   - Start server: `node server.js`
+
+3. **Frontend Setup**
+   - Navigate to root directory
+   - Install dependencies: `npm install`
+   - Start React app: `npm run dev`
+
+4. **Create Admin Account**
+   - Open browser and go to `http://localhost:5173`
    - Click "Sign Up" tab
    - Enter your details
    - Select "Admin" role
    - Click "Sign Up"
 
-2. **Sign In**
-   - Switch to "Sign In" tab
-   - Enter your credentials
-   - Click "Sign In"
-
-3. **Set Up Categories**
+5. **Set Up Categories**
    - Navigate to "Categories & Subcategories"
    - Add expense categories (e.g., Food, Transport, Utilities)
    - Add income categories (e.g., Salary, Freelance, Investment)
@@ -261,12 +278,12 @@ A comprehensive full-stack expense and income management system with role-based 
 
 ## Security Features
 
-- ✅ Password-based authentication with Supabase
+- ✅ Password-based authentication with bcrypt
 - ✅ JWT token verification on all protected endpoints
 - ✅ Role-based access control
 - ✅ Ownership validation (users can only edit their own data)
 - ✅ Admin-only routes and actions
-- ✅ Secure password storage (handled by Supabase)
+- ✅ Secure password storage (bcrypt hashing)
 - ✅ CORS configuration
 - ✅ Input validation
 
@@ -293,7 +310,7 @@ A comprehensive full-stack expense and income management system with role-based 
 
 ## Future Enhancements
 
-- [ ] Receipt/bill file upload with Supabase Storage
+- [ ] Receipt/bill file upload
 - [ ] Recurring expenses/incomes
 - [ ] Budget planning and alerts
 - [ ] Multi-currency support
@@ -331,22 +348,20 @@ A comprehensive full-stack expense and income management system with role-based 
 
 ## Technical Notes
 
-- Uses Supabase KV store (key-value) for data persistence
+- Uses MySQL for relational data persistence
 - All timestamps in ISO 8601 format
-- Currency amounts stored as floats with 2 decimal precision
+- Currency amounts stored as decimals with 2 decimal precision
 - Date inputs use YYYY-MM-DD format
-- Real-time subscriptions available through Supabase
-- Edge functions deployed on Supabase infrastructure
 - Client-side routing with React Router v7
 - Toast notifications auto-dismiss after 3 seconds
 
 ## Support
 
-This is a prototype/demo application built with Figma Make. For production use, consider:
-- Adding comprehensive input validation
-- Implementing rate limiting
+This is a full-stack application. For production use, consider:
+- Adding comprehensive input validation (e.g., Zod)
+- Implementing rate limiting on API
 - Adding database indexes for performance
-- Setting up proper backup strategies
+- Setting up proper backup strategies for MySQL
 - Implementing audit logging
 - Adding two-factor authentication
 - Setting up monitoring and alerting
@@ -354,4 +369,4 @@ This is a prototype/demo application built with Figma Make. For production use, 
 
 ---
 
-**Note**: This application uses Supabase's KV store for data persistence. For production applications handling financial data, ensure compliance with relevant regulations (GDPR, SOC 2, etc.) and implement additional security measures.
+**Note**: This application uses a local MySQL database for data persistence. For production applications handling financial data, ensure compliance with relevant regulations (GDPR, SOC 2, etc.) and implement additional security measures.
