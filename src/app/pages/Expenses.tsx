@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { formatCurrency } from '../../lib/utils';
 
 export const Expenses: React.FC = () => {
   const { session } = useAuth();
@@ -288,7 +289,7 @@ export const Expenses: React.FC = () => {
               />
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              Total Expenses: <span className="font-bold text-red-600 dark:text-red-400">₹{totalAmount.toFixed(2)}</span>
+              Total Expenses: <span className="font-bold text-red-600 dark:text-red-400">{formatCurrency(totalAmount)}</span>
             </div>
           </div>
         </div>
@@ -320,7 +321,7 @@ export const Expenses: React.FC = () => {
                       <TableCell>{expense.subcategoryId ? getSubcategoryName(expense.subcategoryId) : '-'}</TableCell>
                       <TableCell>{expense.projectId ? getProjectName(expense.projectId) : '-'}</TableCell>
 
-                      <TableCell className="font-semibold text-red-600">₹{expense.amount.toFixed(2)}</TableCell>
+                      <TableCell className="font-semibold text-red-600">{formatCurrency(expense.amount)}</TableCell>
                       <TableCell className="max-w-xs truncate">{expense.remarks || '-'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

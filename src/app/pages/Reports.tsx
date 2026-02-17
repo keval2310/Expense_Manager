@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { formatCurrency } from '../../lib/utils';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -77,7 +78,7 @@ export const Reports: React.FC = () => {
     autoTable(doc, {
       startY: 35,
       head: [['Month', 'Expenses', 'Incomes', 'Balance']],
-      body: monthlyTrends.map(t => [t.month, `Rs. ${t.expenses.toFixed(2)}`, `Rs. ${t.incomes.toFixed(2)}`, `Rs. ${t.balance.toFixed(2)}`]),
+      body: monthlyTrends.map(t => [t.month, formatCurrency(t.expenses), formatCurrency(t.incomes), formatCurrency(t.balance)]),
       headStyles: { fillColor: [59, 130, 246] },
     });
 
@@ -85,9 +86,7 @@ export const Reports: React.FC = () => {
     toast.success('PDF report downloaded');
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-  };
+
 
   if (loading) return <div className="flex items-center justify-center h-64">Loading reports...</div>;
 

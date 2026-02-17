@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { formatCurrency } from '../../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { ArrowUpRight, ArrowDownRight, IndianRupee, Wallet, TrendingUp, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -40,9 +41,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
-  };
+
 
   if (loading) return <div className="p-8">Loading dashboard...</div>;
 
@@ -117,33 +116,29 @@ export const Dashboard: React.FC = () => {
 
         {/* Top Expense Categories */}
         <Card className="col-span-1">
-          <CardHeader>
-            <CardTitle>Top Expenses Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenses}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="total"
-                    nameKey="categoryName"
-                  >
-                    {expenses.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
+            <CardHeader>
+                <CardTitle>Top Expenses Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={expenses}>
+                            <PolarGrid gridType="polygon" stroke="#e5e7eb" />
+                            <PolarAngleAxis dataKey="categoryName" tick={{ fill: '#6b7280', fontSize: 12 }} />
+                            <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
+                            <Radar
+                                name="Expenses"
+                                dataKey="total"
+                                stroke="#f59e0b"
+                                fill="#f59e0b"
+                                fillOpacity={0.5}
+                            />
+                            <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                            <Legend />
+                        </RadarChart>
+                    </ResponsiveContainer>
+                </div>
+            </CardContent>
         </Card>
       </div>
 

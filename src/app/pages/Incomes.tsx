@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { formatCurrency } from '../../lib/utils';
 
 export const Incomes: React.FC = () => {
   const { session } = useAuth();
@@ -201,7 +202,7 @@ export const Incomes: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input placeholder="Search incomes (Not Implemented yet in API)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" disabled />
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Total Incomes: <span className="font-bold text-green-600 dark:text-green-400">₹{totalAmount.toFixed(2)}</span></div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">Total Incomes: <span className="font-bold text-green-600 dark:text-green-400">{formatCurrency(totalAmount)}</span></div>
           </div>
         </div>
 
@@ -229,7 +230,7 @@ export const Incomes: React.FC = () => {
                       <TableCell>{format(new Date(income.date), 'MMM dd, yyyy')}</TableCell>
                       <TableCell>{getCategoryName(income.categoryId)}</TableCell>
                       <TableCell>{income.subcategoryId ? getSubcategoryName(income.subcategoryId) : '-'}</TableCell>
-                      <TableCell className="font-semibold text-green-600">₹{income.amount.toFixed(2)}</TableCell>
+                      <TableCell className="font-semibold text-green-600">{formatCurrency(income.amount)}</TableCell>
                       <TableCell className="max-w-xs truncate">{income.remarks || '-'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
