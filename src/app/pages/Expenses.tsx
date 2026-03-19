@@ -1,17 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { api } from '../../lib/api';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Textarea } from '../components/ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { format } from 'date-fns';
-import { formatCurrency } from '../../lib/utils';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { api } from "../../lib/api";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Textarea } from "../components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Receipt,
+  TrendingDown,
+  Filter,
+} from "lucide-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { formatCurrency } from "../../lib/utils";
 
 export const Expenses: React.FC = () => {
   const { session, isAdmin } = useAuth();
@@ -22,22 +52,22 @@ export const Expenses: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<any>(null);
-  
+
   // Pagination & Search State
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [totalAmount, setTotalAmount] = useState(0);
 
   // Form state
   const [formData, setFormData] = useState({
-    date: format(new Date(), 'yyyy-MM-dd'),
-    categoryId: '',
-    subcategoryId: '',
-    projectId: '',
-    amount: '',
-    remarks: '',
+    date: format(new Date(), "yyyy-MM-dd"),
+    categoryId: "",
+    subcategoryId: "",
+    projectId: "",
+    amount: "",
+    remarks: "",
   });
 
   useEffect(() => {
@@ -45,9 +75,8 @@ export const Expenses: React.FC = () => {
       fetchData();
       fetchStats();
     }
-  }, [session, page]); // Re-fetch when page changes
+  }, [session, page]);
 
-  // Debounced search effect
   useEffect(() => {
     const timer = setTimeout(() => {
       if (session) fetchData();
@@ -60,28 +89,37 @@ export const Expenses: React.FC = () => {
       const stats = await api.getDashboardStats(session.access_token);
       setTotalAmount(stats.totalExpenses);
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      console.error("Failed to fetch stats:", error);
     }
   };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [expensesData, categoriesData, subcategoriesData, projectsData] = await Promise.all([
-        api.getExpenses(session.access_token, { page, limit, search: searchTerm }),
-        api.getCategories(session.access_token),
-        api.getSubcategories(session.access_token),
-        api.getProjects(session.access_token),
-      ]);
+      const [expensesData, categoriesData, subcategoriesData, projectsData] =
+        await Promise.all([
+          api.getExpenses(session.access_token, {
+            page,
+            limit,
+            search: searchTerm,
+          }),
+          api.getCategories(session.access_token),
+          api.getSubcategories(session.access_token),
+          api.getProjects(session.access_token),
+        ]);
 
       setExpenses(expensesData.expenses || []);
       setTotal(expensesData.total || 0);
-      setCategories((categoriesData.categories || []).filter((c: any) => c.type === 'expense'));
+      setCategories(
+        (categoriesData.categories || []).filter(
+          (c: any) => c.type === "expense",
+        ),
+      );
       setSubcategories(subcategoriesData.subcategories || []);
       setProjects(projectsData.projects || []);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
-      toast.error('Failed to load expenses');
+      console.error("Failed to fetch data:", error);
+      toast.error("Failed to load expenses");
     } finally {
       setLoading(false);
     }
@@ -96,44 +134,50 @@ export const Expenses: React.FC = () => {
       };
 
       if (editingExpense) {
-        await api.updateExpense(session.access_token, editingExpense.id, dataToSubmit);
-        toast.success('Expense updated successfully');
+        await api.updateExpense(
+          session.access_token,
+          editingExpense.id,
+          dataToSubmit,
+        );
+        toast.success("Expense updated successfully");
       } else {
         await api.createExpense(session.access_token, dataToSubmit);
-        toast.success('Expense created successfully');
+        toast.success("Expense created successfully");
       }
       setDialogOpen(false);
       resetForm();
       fetchData();
       fetchStats();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save expense');
+      toast.error(error.message || "Failed to save expense");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this expense?')) return;
-
+    if (!confirm("Are you sure you want to delete this expense?")) return;
     try {
       await api.deleteExpense(session.access_token, id);
-      toast.success('Expense deleted successfully');
+      toast.success("Expense deleted successfully");
       fetchData();
       fetchStats();
     } catch (error: any) {
-      console.error('Delete failed:', error);
-      toast.error(error.message || 'Failed to delete expense');
+      console.error("Delete failed:", error);
+      toast.error(error.message || "Failed to delete expense");
     }
   };
 
   const handleEdit = (expense: any) => {
     setEditingExpense(expense);
     setFormData({
-      date: typeof expense.date === 'string' ? expense.date.split('T')[0] : format(new Date(expense.date), 'yyyy-MM-dd'),
-      categoryId: expense.categoryId || '',
-      subcategoryId: expense.subcategoryId || '',
-      projectId: expense.projectId || '',
+      date:
+        typeof expense.date === "string"
+          ? expense.date.split("T")[0]
+          : format(new Date(expense.date), "yyyy-MM-dd"),
+      categoryId: expense.categoryId || "",
+      subcategoryId: expense.subcategoryId || "",
+      projectId: expense.projectId || "",
       amount: expense.amount.toString(),
-      remarks: expense.remarks || '',
+      remarks: expense.remarks || "",
     });
     setDialogOpen(true);
   };
@@ -141,226 +185,336 @@ export const Expenses: React.FC = () => {
   const resetForm = () => {
     setEditingExpense(null);
     setFormData({
-      date: format(new Date(), 'yyyy-MM-dd'),
-      categoryId: '',
-      subcategoryId: '',
-      projectId: '',
-      amount: '',
-      remarks: '',
+      date: format(new Date(), "yyyy-MM-dd"),
+      categoryId: "",
+      subcategoryId: "",
+      projectId: "",
+      amount: "",
+      remarks: "",
     });
   };
 
   const getCategoryName = (id: string) => {
-    return categories.find(c => c.id == id)?.name || 'N/A';
+    return categories.find((c) => c.id == id)?.name || "N/A";
   };
 
   const getSubcategoryName = (id: string) => {
-    return subcategories.find(s => s.id == id)?.name || 'N/A';
+    return subcategories.find((s) => s.id == id)?.name || "N/A";
   };
 
   const getProjectName = (id: string) => {
-    const project = projects.find(p => String(p.ProjectID) === String(id) || String(p.id) === String(id));
-    return project ? (project.ProjectName || project.name) : '-';
+    const project = projects.find(
+      (p) => String(p.ProjectID) === String(id) || String(p.id) === String(id),
+    );
+    return project ? project.ProjectName || project.name : "-";
   };
 
   const totalPages = Math.ceil(total / limit);
+  const startItem = (page - 1) * limit + 1;
+  const endItem = Math.min(page * limit, total);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-5">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Expenses</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and track your expenses</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Expenses</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage and track your expense records</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
+            <button className="flex items-center gap-1.5 px-4 py-2 bg-[#1d6aef] text-white text-sm font-medium rounded-lg hover:bg-[#1558cc] transition-colors shadow-sm">
+              <Plus className="w-4 h-4" />
               Add Expense
-            </Button>
+            </button>
           </DialogTrigger>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingExpense ? 'Edit' : 'Add'} Expense</DialogTitle>
-              <DialogDescription>
-                {editingExpense ? 'Update' : 'Create a new'} expense record
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-xl rounded-xl">
+            <DialogHeader className="pb-3 border-b border-gray-100 dark:border-gray-800">
+              <DialogTitle className="text-base font-semibold text-gray-900 dark:text-white">
+                {editingExpense ? "Edit Expense" : "Add New Expense"}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
+                {editingExpense ? "Update the expense details below." : "Fill in the details to record a new expense."}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="date" className="text-xs font-medium text-gray-600 dark:text-gray-400">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="h-9 text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="category" className="text-xs font-medium text-gray-600 dark:text-gray-400">Category</Label>
+                  <Select
+                    value={formData.categoryId.toString()}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, categoryId: value, subcategoryId: "" })
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="subcategory" className="text-xs font-medium text-gray-600 dark:text-gray-400">Subcategory <span className="text-gray-400">(optional)</span></Label>
+                  <Select
+                    key={formData.categoryId}
+                    value={formData.subcategoryId || undefined}
+                    onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}
+                    disabled={!formData.categoryId}
+                  >
+                    <SelectTrigger className="h-9 text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg disabled:opacity-50">
+                      <SelectValue placeholder={formData.categoryId ? "Select subcategory" : "Select a category first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(() => {
+                        const filtered = subcategories.filter((s) => String(s.categoryId) === String(formData.categoryId));
+                        if (filtered.length === 0) return (
+                          <div className="px-3 py-2 text-xs text-gray-400 text-center">No subcategories for this category</div>
+                        );
+                        return filtered.map((sub) => (
+                          <SelectItem key={sub.id} value={sub.id.toString()}>{sub.name}</SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="project" className="text-xs font-medium text-gray-600 dark:text-gray-400">Project <span className="text-gray-400">(optional)</span></Label>
+                  <Select
+                    value={formData.projectId?.toString()}
+                    onValueChange={(value) => setFormData({ ...formData, projectId: value })}
+                  >
+                    <SelectTrigger className="h-9 text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((proj) => (
+                        <SelectItem key={proj.ProjectID || proj.id} value={String(proj.ProjectID || proj.id)}>
+                          {proj.ProjectName || proj.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="amount" className="text-xs font-medium text-gray-600 dark:text-gray-400">Amount (₹)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    className="h-9 text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <Label htmlFor="remarks" className="text-xs font-medium text-gray-600 dark:text-gray-400">Remarks <span className="text-gray-400">(optional)</span></Label>
+                  <Textarea
+                    id="remarks"
+                    placeholder="Add any notes..."
+                    value={formData.remarks}
+                    onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                    className="text-sm border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg resize-none"
+                    rows={3}
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={formData.categoryId.toString()} onValueChange={(value) => setFormData({ ...formData, categoryId: value, subcategoryId: '' })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => { setDialogOpen(false); resetForm(); }}
+                  className="flex-1 h-9 text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-9 text-sm font-medium bg-[#1d6aef] text-white rounded-lg hover:bg-[#1558cc] transition-colors"
+                >
+                  {editingExpense ? "Update" : "Save"} Expense
+                </button>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="subcategory">Subcategory</Label>
-                <Select value={formData.subcategoryId?.toString() || ''} onValueChange={(value) => setFormData({ ...formData, subcategoryId: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select subcategory (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subcategories.filter(s => String(s.categoryId) === String(formData.categoryId)).map(sub => (
-                      <SelectItem key={sub.id} value={sub.id.toString()}>{sub.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="project">Project</Label>
-                <Select value={formData.projectId?.toString()} onValueChange={(value) => setFormData({ ...formData, projectId: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select project (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map(proj => (
-                      <SelectItem key={proj.ProjectID || proj.id} value={String(proj.ProjectID || proj.id)}>
-                        {proj.ProjectName || proj.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="remarks">Remarks</Label>
-                <Textarea
-                  id="remarks"
-                  placeholder="Add any notes..."
-                  value={formData.remarks}
-                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                />
-              </div>
-
-              <Button type="submit" className="w-full">
-                {editingExpense ? 'Update' : 'Create'} Expense
-              </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700">
-        <div className="p-4 border-b dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search expenses..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-                className="pl-10"
-              />
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              Total Expenses: <span className="font-bold text-red-600 dark:text-red-400">{formatCurrency(totalAmount)}</span>
-            </div>
+      {/* Summary Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+          <div className="w-7 h-7 bg-red-50 dark:bg-red-900/20 rounded-md flex items-center justify-center">
+            <TrendingDown className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+          </div>
+          <div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-none mb-0.5">Total Expenses</p>
+            <p className="text-sm font-bold text-red-600 dark:text-red-400">{formatCurrency(totalAmount)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+          <div className="w-7 h-7 bg-blue-50 dark:bg-blue-900/20 rounded-md flex items-center justify-center">
+            <Receipt className="w-3.5 h-3.5 text-[#1d6aef] dark:text-blue-400" />
+          </div>
+          <div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-none mb-0.5">Total Records</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white">{total}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Card */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+        {/* Search Bar */}
+        <div className="px-5 py-3.5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
+          <div className="relative max-w-xs w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search expenses..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+              className="w-full h-8 pl-9 pr-3 text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1d6aef]/20 focus:border-[#1d6aef] dark:focus:border-blue-500 transition-colors"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+            {total > 0 && <span>Showing {startItem}–{endItem} of {total}</span>}
           </div>
         </div>
 
+        {/* Table */}
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading expenses...</div>
+          <div className="flex items-center justify-center h-48">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-6 h-6 border-2 border-[#1d6aef] border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-gray-400">Loading expenses...</p>
+            </div>
+          </div>
         ) : expenses.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No expenses found</div>
+          <div className="flex flex-col items-center justify-center h-48 gap-3">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">No expenses found</p>
+              <p className="text-xs text-gray-400 mt-0.5">Add your first expense to get started</p>
+            </div>
+          </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    {isAdmin && <TableHead>User</TableHead>}
-                    <TableHead>Category</TableHead>
-                    <TableHead>Subcategory</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Remarks</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/50">
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</th>
+                    {isAdmin && <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">User</th>}
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Category</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subcategory</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</th>
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Remarks</th>
+                    <th className="px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                   {expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell>{format(new Date(expense.date), 'MMM dd, yyyy')}</TableCell>
-                      {isAdmin && <TableCell>{expense.userName || '-'}</TableCell>}
-                      <TableCell>{getCategoryName(expense.categoryId)}</TableCell>
-                      <TableCell>{expense.subcategoryId ? getSubcategoryName(expense.subcategoryId) : '-'}</TableCell>
-                      <TableCell>{expense.projectId ? getProjectName(expense.projectId) : '-'}</TableCell>
-
-                      <TableCell className="font-semibold text-red-600">{formatCurrency(expense.amount)}</TableCell>
-                      <TableCell className="max-w-xs truncate">{expense.remarks || '-'}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(expense)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(expense.id)}>
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </Button>
+                    <tr key={expense.id} className="hover:bg-gray-50/70 dark:hover:bg-gray-800/50 transition-colors group">
+                      <td className="px-5 py-3.5 text-gray-600 dark:text-gray-300 text-[13px] whitespace-nowrap">
+                        {format(new Date(expense.date), "MMM dd, yyyy")}
+                      </td>
+                      {isAdmin && (
+                        <td className="px-5 py-3.5">
+                          <span className="text-[13px] text-gray-700 dark:text-gray-300">{expense.userName || "-"}</span>
+                        </td>
+                      )}
+                      <td className="px-5 py-3.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+                          {getCategoryName(expense.categoryId)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400">
+                        {expense.subcategoryId ? getSubcategoryName(expense.subcategoryId) : <span className="text-gray-300 dark:text-gray-600">—</span>}
+                      </td>
+                      <td className="px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400">
+                        {expense.projectId ? getProjectName(expense.projectId) : <span className="text-gray-300 dark:text-gray-600">—</span>}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="text-[13px] font-semibold text-red-600 dark:text-red-400">{formatCurrency(expense.amount)}</span>
+                      </td>
+                      <td className="px-5 py-3.5 max-w-[160px]">
+                        <span className="text-[13px] text-gray-500 dark:text-gray-400 truncate block">{expense.remarks || <span className="text-gray-300 dark:text-gray-600">—</span>}</span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            className="p-1.5 rounded-md text-gray-400 hover:text-[#1d6aef] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            onClick={() => handleEdit(expense)}
+                            title="Edit"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            onClick={() => handleDelete(expense.id)}
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table>
             </div>
 
-            <div className="flex items-center justify-end px-4 py-4 space-x-2 border-t dark:border-gray-700">
-               <div className="text-sm text-gray-500 dark:text-gray-400 mr-4">
-                  Page {page} of {Math.max(1, totalPages)}
-               </div>
-               <Button 
-                 variant="outline" 
-                 size="sm" 
-                 onClick={() => setPage(p => Math.max(1, p - 1))}
-                 disabled={page === 1}
-               >
-                 <ChevronLeft className="w-4 h-4" />
-               </Button>
-               <Button 
-                 variant="outline" 
-                 size="sm" 
-                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                 disabled={page >= totalPages || totalPages === 0}
-               >
-                 <ChevronRight className="w-4 h-4" />
-               </Button>
+            {/* Pagination */}
+            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Page {page} of {Math.max(1, totalPages)}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages || totalPages === 0}
+                  className="p-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </>
         )}

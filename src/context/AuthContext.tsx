@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../lib/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { api } from "../lib/api";
 
 interface User {
   id: number;
   email: string;
   name: string;
-  role: 'admin' | 'user';
+  role: "super_admin" | "admin" | "user";
 }
 
 interface AuthContextType {
@@ -13,6 +13,7 @@ interface AuthContextType {
   session: any; // Kept for compatibility if used elsewhere
   loading: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -24,14 +25,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('accessToken'));
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("accessToken"),
+  );
   const [loading, setLoading] = useState(true);
 
   // Initialize auth
@@ -42,8 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { user } = await api.getCurrentUser(token);
           setUser(user);
         } catch (error) {
-          console.error('Session expired or invalid:', error);
-          localStorage.removeItem('accessToken');
+          console.error("Session expired or invalid:", error);
+          localStorage.removeItem("accessToken");
           setToken(null);
           setUser(null);
         }
@@ -58,11 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.login({ email, password });
       if (response.success && response.token && response.user) {
-        localStorage.setItem('accessToken', response.token);
+        localStorage.setItem("accessToken", response.token);
         setToken(response.token);
         setUser(response.user);
       } else {
-        throw new Error(response.error || 'Login failed');
+        throw new Error(response.error || "Login failed");
       }
     } catch (error) {
       throw error;
@@ -71,14 +76,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const response = await api.register({ email, password, name, role: 'user' });
+      const response = await api.register({
+        email,
+        password,
+        name,
+        role: "user",
+      });
       if (response.success && response.token && response.user) {
         // Automatically login after register
-        localStorage.setItem('accessToken', response.token);
+        localStorage.setItem("accessToken", response.token);
         setToken(response.token);
         setUser(response.user);
       } else {
-        throw new Error(response.error || 'Registration failed');
+        throw new Error(response.error || "Registration failed");
       }
     } catch (error) {
       throw error;
@@ -86,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem("accessToken");
     setToken(null);
     setUser(null);
   };
@@ -104,11 +114,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         session,
         loading,
-        isAdmin: user?.role === 'admin',
+        isAdmin: user?.role === "admin" || user?.role === "super_admin",
+        isSuperAdmin: user?.role === "super_admin",
         signIn,
         signUp,
         signOut,
-        token
+        token,
       }}
     >
       {children}

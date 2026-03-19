@@ -1,6 +1,5 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = `${window.location.protocol}//${window.location.hostname}:3001/api`;
 
-const generateId = () => crypto.randomUUID();
 
 export interface AuthResponse {
   success: boolean;
@@ -35,7 +34,7 @@ class ApiService {
     return response.json();
   }
 
-  // Auth (Week 7)
+  // Auth
   async login(data: any): Promise<AuthResponse> {
     return this.request('/auth/login', {
       method: 'POST',
@@ -56,7 +55,7 @@ class ApiService {
     });
   }
 
-  // File Upload (Week 9)
+  // File Upload
   async uploadFile(accessToken: string, file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -144,7 +143,7 @@ class ApiService {
   }
 
 
-  // Projects (Updated for Pagination Week 9)
+  // Projects
   async getProjects(accessToken: string, params: { page?: number; limit?: number; search?: string } = {}) {
     const query = new URLSearchParams({
       page: (params.page || 1).toString(),
@@ -184,7 +183,7 @@ class ApiService {
     return { success: true };
   }
 
-  // Expenses (Updated for Pagination)
+  // Expenses
   async getExpenses(accessToken: string, params: { page?: number; limit?: number; search?: string } = {}) {
     const query = new URLSearchParams({
       page: (params.page || 1).toString(),
@@ -231,7 +230,7 @@ class ApiService {
     return { success: true };
   }
 
-  // Incomes (Updated for Pagination)
+  // Incomes
   async getIncomes(accessToken: string, params: { page?: number; limit?: number } = {}) {
     const query = new URLSearchParams({
       page: (params.page || 1).toString(),
@@ -317,6 +316,41 @@ class ApiService {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     return { users: data.users || [] };
+  }
+
+  async updateUser(accessToken: string, id: string | number, data: any) {
+    return this.request(`/users/${id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteUser(accessToken: string, id: string | number) {
+    return this.request(`/users/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+  }
+
+  async getActivityLogs(accessToken: string) {
+    return this.request('/activity-logs', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+  }
+
+  async markAsRead(accessToken: string, id: number | string) {
+    return this.request(`/activity-logs/${id}/read`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+  }
+
+  async markAllAsRead(accessToken: string) {
+    return this.request('/activity-logs/read-all', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
   }
 }
 

@@ -1,16 +1,18 @@
-# Expense Manager System
+# Elite Finance System
 
 A comprehensive full-stack expense and income management system with role-based access control, analytics, and reporting capabilities.
 
 ## Features
 
 ### Authentication & Authorization
+
 - ✅ User signup and signin
 - ✅ Role-based access (Admin / Normal User)
 - ✅ JWT-based authentication
 - ✅ Protected routes
 
 ### Core Functionality
+
 - ✅ **Dashboard** - Overview with stats cards and charts
 - ✅ **Expense Management** - Create, read, update, delete expenses
 - ✅ **Income Management** - Full CRUD for incomes
@@ -21,6 +23,7 @@ A comprehensive full-stack expense and income management system with role-based 
 - ✅ **User Management** - Admin-only user listing and management
 
 ### Technical Features
+
 - ✅ Responsive design (mobile-first)
 - ✅ Modern UI with Tailwind CSS and shadcn/ui components
 - ✅ Real-time data synchronization
@@ -32,6 +35,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Tech Stack
 
 ### Frontend
+
 - **React 18** - UI library
 - **TypeScript** - Type safety
 - **React Router v7** - Client-side routing
@@ -44,6 +48,7 @@ A comprehensive full-stack expense and income management system with role-based 
 - **Sonner** - Toast notifications
 
 ### Backend
+
 - **Node.js & Express** - Server environment
 - **MySQL** - Database
 - **JWT** - Token-based authentication
@@ -117,65 +122,79 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Data Models
 
 ### User
+
 - id, email, name, role (admin/user), createdAt
 
 ### Category
+
 - id, name, type (expense/income), isActive, createdBy, createdAt
 
 ### Subcategory
+
 - id, name, categoryId, isActive, createdBy, createdAt
 
 ### Project
+
 - id, name, description, startDate, endDate, status, createdBy, createdAt
 
 ### Expense
+
 - id, userId, date, categoryId, subcategoryId, projectId, amount, remarks, attachment, createdAt
 
 ### Income
+
 - id, userId, date, categoryId, subcategoryId, projectId, amount, remarks, attachment, createdAt
 
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Create new user account
 
 ### Users
+
 - `GET /api/auth/me` - Get current user profile
 - `GET /api/users` - List all users (admin only)
 - `PUT /api/users/profile` - Update user profile
 - `PUT /api/users/password` - Update user password
 
 ### Categories
+
 - `GET /api/categories` - List all categories
 - `POST /api/categories` - Create category
 - `PUT /api/categories/:id` - Update category
 - `DELETE /api/categories/:id` - Delete category
 
 ### Subcategories
+
 - `GET /api/subcategories` - List all subcategories
 - `POST /api/subcategories` - Create subcategory
 - `PUT /api/subcategories/:id` - Update subcategory
 - `DELETE /api/subcategories/:id` - Delete subcategory
 
 ### Projects
+
 - `GET /api/projects` - List all projects
 - `POST /api/projects` - Create project
 - `PUT /api/projects/:id` - Update project
 - `DELETE /api/projects/:id` - Delete project
 
 ### Expenses
+
 - `GET /api/expenses` - List expenses (filtered by user role)
 - `POST /api/expenses` - Create expense
 - `PUT /api/expenses/:id` - Update expense
 - `DELETE /api/expenses/:id` - Delete expense
 
 ### Incomes
+
 - `GET /api/incomes` - List incomes (filtered by user role)
 - `POST /api/incomes` - Create income
 - `PUT /api/incomes/:id` - Update income
 - `DELETE /api/incomes/:id` - Delete income
 
 ### Analytics
+
 - `GET /api/dashboard-stats` - Get dashboard stats
 - `GET /api/category-breakdown?type=expense|income` - Category-wise breakdown
 - `GET /api/monthly-trends` - Monthly trends
@@ -184,6 +203,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## User Roles
 
 ### Admin
+
 - **Full System Access**: Can view and manage all data.
 - **Global Visibility**: Can view expenses, incomes, and projects for **all users**.
 - **User Identification**: Admin views include a "User" column to identify the creator of each record.
@@ -191,6 +211,7 @@ A comprehensive full-stack expense and income management system with role-based 
 - **User Management**: Can access the user management page to view all registered users.
 
 ### Normal User
+
 - **Data Isolation**: Can strictly only view and manage their **own** expenses, incomes, and projects.
 - **Restricted Access**: Cannot see data from other users or the admin.
 - **Read-Only Categories**: Can use categories for transactions but cannot modify them.
@@ -199,6 +220,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js and npm installed
 - MySQL Server installed and running
 
@@ -226,10 +248,7 @@ A comprehensive full-stack expense and income management system with role-based 
      cd server
      node create_admin.js
      ```
-   - **Default Admin Credentials**:
-     - Email: `keval123@abc.com`
-     - Password: `keval2310`
-   - Log in with these credentials at `http://localhost:5173`.
+   - Log in with the configured admin credentials at `http://localhost:5173`.
 
 5. **Set Up Categories**
    - Navigate to "Categories & Subcategories"
@@ -237,11 +256,11 @@ A comprehensive full-stack expense and income management system with role-based 
    - Add income categories (e.g., Salary, Freelance, Investment)
    - Add subcategories under each category
 
-4. **Create Projects** (Optional)
+6. **Create Projects** (Optional)
    - Navigate to "Projects"
    - Add projects to track expenses/incomes
 
-5. **Start Recording**
+7. **Start Recording**
    - Add expenses via "Expenses" page
    - Add incomes via "Incomes" page
    - View analytics on "Dashboard" and "Reports"
@@ -249,35 +268,41 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Features Walkthrough
 
 ### Dashboard
+
 - **Stats Cards**: Total income, total expenses, net balance, monthly summary
 - **Charts**: Monthly trends (bar chart), Category breakdown (pie chart)
 - **Quick Actions**: Links to add expense, income, or view reports
 
 ### Expenses & Incomes
+
 - **Table View**: All transactions with search functionality
 - **Create/Edit Form**: Date, category, subcategory, project, amount, remarks
 - **Actions**: Edit and delete buttons for each transaction
 - **Total Display**: Shows sum of filtered transactions
 
 ### Categories & Subcategories
+
 - **Tabs**: Separate views for categories and subcategories
 - **Type Toggle**: Expense or Income categories
 - **Active Status**: Enable/disable categories
 - **Parent Linking**: Subcategories linked to parent categories
 
 ### Projects
+
 - **Card View**: Visual project cards with status badges
 - **Status Options**: Active, Completed, On Hold
 - **Date Tracking**: Start and end dates
 - **Quick Actions**: Edit and delete
 
 ### Reports
+
 - **Three Tabs**: Monthly trends, Category breakdown, Project breakdown
 - **Visualizations**: Bar charts and pie charts
 - **Export Options**: Excel and PDF download
 - **12-Month View**: Historical data analysis
 
 ### User Management (Admin)
+
 - **User Cards**: Display all users with roles
 - **Role Badges**: Visual indication of admin/user status
 - **User Details**: Name, email, join date
@@ -296,6 +321,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Best Practices Implemented
 
 ### Frontend
+
 - Component-based architecture
 - Custom hooks for data fetching
 - Context API for global state
@@ -306,6 +332,7 @@ A comprehensive full-stack expense and income management system with role-based 
 - Optimistic UI updates
 
 ### Backend
+
 - RESTful API design
 - Middleware pattern (auth, CORS, logging)
 - Error handling with detailed messages
@@ -334,22 +361,26 @@ A comprehensive full-stack expense and income management system with role-based 
 ### Common Issues
 
 **Cannot sign in**
+
 - Ensure you've created an account first
 - Check credentials are correct
 - Verify email format is valid
 
 **No data showing**
+
 - Create categories before adding expenses/incomes
 - Check that you're signed in
 - Refresh the page
 
 **Export not working**
+
 - Ensure you have data to export
 - Check browser console for errors
 - Try different browser if issue persists
 
 **Admin features not showing**
-- Verify you are logged in with the dedicated admin account (`keval123@abc.com`).
+
+- Verify you are logged in with the admin account created via `create_admin.js`.
 - Regular users cannot access admin features by design.
 
 ## Technical Notes
@@ -364,6 +395,7 @@ A comprehensive full-stack expense and income management system with role-based 
 ## Support
 
 This is a full-stack application. For production use, consider:
+
 - Adding comprehensive input validation (e.g., Zod)
 - Implementing rate limiting on API
 - Adding database indexes for performance
