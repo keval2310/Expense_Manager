@@ -1232,6 +1232,21 @@ app.post("/api/notifications/subscribe", authenticateToken, async (req, res) => 
   }
 });
 
+// Serve static assets from the frontend build in production
+const frontendDir = path.join(__dirname, "../dist");
+if (fs.existsSync(frontendDir)) {
+  app.use(express.static(frontendDir));
+
+  // Catch-all route for any request that doesn't match an API route
+  app.get("*", (req, res) => {
+    // Skip API routes to avoid confusion
+    if (req.url.startsWith("/api/")) return res.status(404).json({ error: "API route not found" });
+    
+    // Serve index.html for React Router to handle
+    res.sendFile(path.join(frontendDir, "index.html"));
+  });
+}
+
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
