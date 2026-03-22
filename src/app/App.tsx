@@ -124,7 +124,15 @@ export default function App() {
       <AuthProvider>
         <ThemeProvider>
           <AppContent />
-          <Toaster position="top-right" />
+          <Toaster 
+            position="top-center" 
+            richColors 
+            expand={true} 
+            closeButton
+            toastOptions={{
+              className: 'mt-2 mobile:mt-16',
+            }}
+          />
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
