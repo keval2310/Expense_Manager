@@ -1,6 +1,4 @@
-// API_URL will be set via Environment Variable in Vercel/Production
-// If not set, it defaults to the same host (Monorepo fallback)
-const API_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}/api`;
+const API_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:3001/api`;
 
 
 export interface AuthResponse {
