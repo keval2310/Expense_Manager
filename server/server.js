@@ -66,7 +66,9 @@ const logActivity = async (userId, action, details, req) => {
     const userRole = users[0] ? users[0].role : "user";
 
     // ONLY notify if actor is NOT super admin AND action is NOT 'LOGIN' or 'REGISTER'
-    if (userRole && userRole.toLowerCase() !== "super_admin" && action !== 'LOGIN' && action !== 'REGISTER') {
+    const isSuperAdmin = userRole && userRole.toLowerCase().includes("super_admin");
+    
+    if (!isSuperAdmin && action !== 'LOGIN' && action !== 'REGISTER') {
       const logEntry = {
         userName,
         userRole,
@@ -76,11 +78,12 @@ const logActivity = async (userId, action, details, req) => {
       };
 
       // Real-time notification to Super Admins via Socket.io
+      console.log(`📣 Broadcasting activity: ${action} by ${userName} to super_admins room`);
       io.to("super_admins").emit("activity_notification", logEntry);
 
       // Browser Push Notification to Super Admins
       const [subs] = await pool.query(
-        "SELECT s.subscription FROM push_subscriptions s JOIN users u ON s.user_id = u.id WHERE u.role = 'super_admin'"
+        "SELECT s.subscription FROM push_subscriptions s JOIN users u ON s.user_id = u.id WHERE u.role LIKE '%super_admin%'"
       );
 
       const payload = JSON.stringify({
