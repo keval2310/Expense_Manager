@@ -1,7 +1,5 @@
--- Database Setup for Expense Manager
-DROP DATABASE IF EXISTS expense_manager;
-CREATE DATABASE expense_manager;
-USE expense_manager;
+-- Database Setup for Aiven Cloud
+-- Tables will be created in the current connected database (defaultdb)
 
 -- Users Table
 CREATE TABLE users (
