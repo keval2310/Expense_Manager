@@ -15,21 +15,36 @@
       "purpose": "any"
     },
     {
-      "src": "./logo.png",
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "./logo.png",
+      "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "start_url": "./",
+  "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "background_color": "#f8fafc",
   "theme_color": "#1d6aef",
-  "background_color": "#f8fafc"
+  "description": "KD Financial - Premium Expense Management",
+  "orientation": "portrait",
+  "scope": "/",
+  "prefer_related_applications": false
 }

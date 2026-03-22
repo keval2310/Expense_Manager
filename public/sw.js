@@ -1,7 +1,6 @@
-const CACHE_NAME = 'kd-financial-v5';
+const CACHE_NAME = 'kd-financial-v6';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
   './logo.png',
   './manifest.json'
 ];
@@ -58,7 +57,7 @@ self.addEventListener("push", (event) => {
       badge: "/logo.png",
       vibrate: [100, 50, 100],
       // 'tag' ensures only ONE notification shows at a time — new ones replace old ones
-      tag: 'kd-financial-activity',
+      tag: 'expense-manager-activity',
       renotify: true,
       data: {
         url: '/dashboard',
@@ -67,7 +66,7 @@ self.addEventListener("push", (event) => {
 
     event.waitUntil(
       // Close any existing notification with this tag before showing the new one
-      self.registration.getNotifications({ tag: 'kd-financial-activity' })
+      self.registration.getNotifications({ tag: 'expense-manager-activity' })
         .then((notifications) => {
           notifications.forEach(n => n.close());
           return self.registration.showNotification(data.title || 'System Alert', options);

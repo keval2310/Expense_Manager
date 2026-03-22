@@ -244,7 +244,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Quick Actions (New styled segment) */}
+      {/* Quick Actions (New styled segment) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <Link to="/expenses" className="card-hover glass p-4 rounded-2xl flex items-center gap-4 group">
           <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all text-red-500">

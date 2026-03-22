@@ -20,14 +20,17 @@ const io = new Server(server, {
   }
 });
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Change in production
+const JWT_SECRET = process.env.JWT_SECRET || "insecure-default-key-change-it";
+if (!process.env.JWT_SECRET) {
+  console.warn("WARNING: JWT_SECRET not found in .env, using insecure fallback.");
+}
 
 // Web Push VAPID Keys
 const publicVapidKey = "BFsKG2-HrVqRc1y79LWRZVGj9UGxUjukqUwBMFNd2aQhBC44tGp8ejkjOw-nybfddDmYUa5mcqGWRRy0Ntefz-I";
 const privateVapidKey = "27AqwAd3zqSS0cKNu9kCOX3DBKxeWY_a_IXS0_08lwo";
 
 webpush.setVapidDetails(
-  "mailto:keval192837@gmail.com",
+  process.env.VAPID_EMAIL || "mailto:support@expensemanager.com",
   publicVapidKey,
   privateVapidKey
 );
@@ -83,8 +86,8 @@ const logActivity = async (userId, action, details, req) => {
       const payload = JSON.stringify({
         title: "System Alert",
         body: `${userName} (${userRole}): ${action} - ${details}`,
-        icon: "http://localhost:5173/logo.png",
-        badge: "http://localhost:5173/logo.png",
+        icon: `${process.env.APP_URL || 'http://localhost:5173'}/logo.png`,
+        badge: `${process.env.APP_URL || 'http://localhost:5173'}/logo.png`,
         vibrate: [200, 100, 200, 100, 200],
         tag: "expense-manager-activity",
         renotify: true,

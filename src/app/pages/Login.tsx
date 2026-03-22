@@ -66,11 +66,14 @@ export const Login: React.FC = () => {
 
         <div className="relative z-10 flex flex-col h-full p-12">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-auto">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md overflow-hidden">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-0.5" />
+          <div className="flex items-center gap-4 mb-auto group cursor-default">
+            <div className="w-14 h-14 bg-white rounded-[16px] flex items-center justify-center shadow-xl shadow-black/10 p-1.5 overflow-hidden transition-all duration-500 group-hover:scale-105">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain brightness-105" />
             </div>
-            <span className="text-white text-xl font-bold tracking-tight">KD Financial</span>
+            <div className="flex flex-col">
+              <span className="text-white text-2xl font-black tracking-tight leading-none">KD Financial</span>
+              <span className="text-blue-200 text-xs font-bold tracking-widest uppercase mt-1.5 opacity-80">Expense Manager</span>
+            </div>
           </div>
 
           {/* Main content */}
@@ -110,13 +113,16 @@ export const Login: React.FC = () => {
 
       {/* Right Panel - Auth Form */}
       <div className="flex-1 bg-white dark:bg-gray-950 flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-md">
+        <div className="w-full max-md">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#1d6aef] rounded-lg flex items-center justify-center overflow-hidden">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-0.5" />
+          <div className="flex items-center gap-4 mb-8 lg:hidden">
+            <div className="w-12 h-12 bg-white dark:bg-slate-50 rounded-[14px] flex items-center justify-center shadow-md border border-gray-100 dark:border-white/5 p-1 overflow-hidden transition-all">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain brightness-105" />
             </div>
-            <span className="text-gray-900 dark:text-white text-lg font-bold">KD Financial</span>
+            <div className="flex flex-col">
+              <span className="text-gray-900 dark:text-white text-xl font-black tracking-tight leading-none">KD Financial</span>
+              <span className="text-[#1d6aef] text-[10px] font-bold tracking-widest uppercase mt-1 opacity-80">Expense Manager</span>
+            </div>
           </div>
 
           <div className="mb-7">

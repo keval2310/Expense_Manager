@@ -8,6 +8,7 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(20) DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -73,13 +74,34 @@ CREATE TABLE incomes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Activity Logs Table
+CREATE TABLE activity_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(100) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Push Subscriptions Table
+CREATE TABLE push_subscriptions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    subscription JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Seed Data
 
--- Users
-INSERT INTO users (id, name, email, role) VALUES 
-(1, 'Local User', 'local@example.com', 'admin'),
-(2, 'John Doe', 'john@example.com', 'user'),
-(3, 'Alice Smith', 'alice@example.com', 'user');
+-- Users (Passwords are 'password123' hashed with bcrypt)
+INSERT INTO users (id, name, email, password, role) VALUES 
+(1, 'Admin User', 'admin@example.com', '$2b$10$EPZ9S8H1L7O/f.xS8v7/n.yQyv/v/V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v', 'admin'),
+(2, 'Test User', 'user@example.com', '$2b$10$EPZ9S8H1L7O/f.xS8v7/n.yQyv/v/V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v', 'user'),
+(3, 'Super Admin', 'superadmin@example.com', '$2b$10$EPZ9S8H1L7O/f.xS8v7/n.yQyv/v/V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v7V7v', 'super_admin');
 
 -- Categories
 INSERT INTO categories (id, name, type) VALUES 

@@ -102,7 +102,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (user?.role === 'super_admin') {
       fetchNotifs();
 
-      const socket = io('http://localhost:3001', { transports: ['websocket', 'polling'] });
+      const socketUrl = `${window.location.protocol}//${window.location.hostname}:3001`;
+      const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
       socket.on('connect', () => socket.emit('join', 'super_admin'));
 
       socket.on('activity_notification', (data) => {
@@ -135,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           duration: 5000,
           icon: (
             <div className="w-7 h-7 rounded-md bg-white border border-gray-100 shadow-sm overflow-hidden flex items-center justify-center">
-              <img src="/logo.png" alt="KD" className="w-full h-full object-contain p-0.5" />
+              <img src="/logo.png" alt="Expense Manager" className="w-full h-full object-contain p-0.5" />
             </div>
           )
         });
@@ -177,11 +178,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         {/* Logo */}
         <div className="flex items-center h-16 px-6 border-b border-white/20 dark:border-white/5 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden group">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform" />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white dark:bg-slate-50 rounded-[16px] flex items-center justify-center shadow-lg shadow-primary/10 border border-white/50 dark:border-white/10 p-1 overflow-hidden group hover:scale-105 transition-all duration-300">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain brightness-105 contrast-105" />
             </div>
-            <span className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">KD Financial</span>
+            <div className="flex flex-col">
+              <span className="text-[19px] font-black tracking-tight leading-none bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70">
+                KD Financial
+              </span>
+              <span className="text-[11px] font-bold text-primary tracking-[0.06em] uppercase mt-1.5 opacity-90">
+                 Expense Manager
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}

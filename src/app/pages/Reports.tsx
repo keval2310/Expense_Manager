@@ -102,7 +102,7 @@ export const Reports: React.FC = () => {
     const pageCount = (doc as any).internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i); doc.setFontSize(8); doc.setTextColor(148, 163, 184);
-      doc.text(`Page ${i} of ${pageCount} · KD Financial Report`, 14, 285);
+      doc.text(`Page ${i} of ${pageCount} · Expense Manager Financial Report`, 14, 285);
     }
     doc.save(`expense-report-${new Date().toISOString().split('T')[0]}.pdf`);
     toast.success('PDF report downloaded');
