@@ -106,9 +106,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       const socketUrl = isLocal ? 'http://localhost:3001' : 'https://kd-financial-backend.onrender.com';
       const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
-      socket.on('connect', () => socket.emit('join', 'super_admin'));
+      socket.on('connect', () => {
+        socket.emit('join', 'super_admins');
+        console.log('✅ Connected to Cloud Notifications');
+      });
 
-      socket.on('activity_notification', (data) => {
+      socket.on('activity_notification', (data: any) => {
         // Refresh the notification list
         fetchNotifs();
 
