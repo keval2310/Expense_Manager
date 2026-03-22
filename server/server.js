@@ -40,9 +40,11 @@ io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   
   socket.on("join", (role) => {
-    if (role === "super_admin") {
+    if (role && role.toLowerCase().includes("super_admin")) {
       socket.join("super_admins");
-      console.log("Socket joined super_admins room");
+      console.log(`✅ Socket ${socket.id} joined super_admins room (Role: ${role})`);
+    } else {
+      console.log(`ℹ️ Socket ${socket.id} joined with role: ${role}`);
     }
   });
 
