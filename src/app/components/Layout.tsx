@@ -102,7 +102,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (user?.role === 'super_admin') {
       fetchNotifs();
 
-      const socketUrl = `${window.location.protocol}//${window.location.hostname}:3001`;
+      // Use the same API_URL logic as api.ts for the Socket connection
+      const apiBase = (import.meta as any).env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}`;
+      const socketUrl = apiBase.replace(/\/api$/, ''); // Remove /api suffix if present
       const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
       socket.on('connect', () => socket.emit('join', 'super_admin'));
 
