@@ -166,7 +166,12 @@ const DB_CONFIG = {
 };
 
 // Create a connection pool
-const pool = mysql.createPool(dbConfig);
+const pool = mysql.createPool({
+  ...DB_CONFIG,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
 // Test connection
 pool
