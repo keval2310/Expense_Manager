@@ -65,9 +65,11 @@ CREATE TABLE incomes (
     amount DECIMAL(10, 2) NOT NULL,
     remarks TEXT,
     category_id INT,
+    subcategory_id INT, -- Added to match code
     project_id INT,
     user_id INT,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (subcategory_id) REFERENCES subcategories(id) ON DELETE SET NULL,
     FOREIGN KEY (project_id) REFERENCES projects(ProjectID) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
