@@ -104,7 +104,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       // Use the same API_URL logic as api.ts for the Socket connection
       const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const socketUrl = isLocal ? 'http://localhost:3001' : window.location.origin;
+      const socketUrl = isLocal ? 'http://localhost:3001' : 'https://kd-financial-backend.onrender.com';
       const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
       socket.on('connect', () => socket.emit('join', 'super_admin'));
 
